@@ -1,0 +1,27 @@
+- ファイル名：
+    - baseline BERT+self-training 1.0
+- 説明
+    - BERT+self-trainingの実装
+- 共通
+    - クラス情報は"this text is about クラス名 ."とする。
+    - クラス名が2つある場合、"this text is about クラス名 . this text is about クラス名 ."とする。
+- 学習データ
+    - ../data/yahootopic/train_pu_half_v0.txt
+    - クラス数：5
+    - データ数： 正例：650000 不例：650000
+- テストデータ
+    - ../data/yahootopic/test.txtのv1
+    - クラス数：5
+    - データ数：50000文書
+- パラメータ
+    - "BATCH_SIZE":32,
+    - "EPOCHS":20,
+    - "SEQ_LEN":128,
+    - "BERT_DIM":768,
+    - "LR":5e-5,
+    - "train_units":5,
+    - "test_units":5,
+    - "threshold":0.5,
+    - "choice_text_num":50,
+    - "N1":5,
+    - "N2":20
