@@ -78,7 +78,7 @@ with open('../dataset/train/x_train.npy','wb') as f:
 with open('../dataset/train/y_train.npy','wb') as f:
     pickle.dump(y_train, f, protocol=4)
 
-# testdata
+# testdataのv1
 with open('../data/yahootopic/test.txt','r',encoding='utf-8') as f:
     yahoo_test = f.read().splitlines()
 yahoo_test_v1 = [y for y in yahoo_test if int(y[0])%2==1]
@@ -88,7 +88,7 @@ y_test = []
 for texts in tqdm(yahoo_test_v1,total=len(yahoo_test_v1)):
     text = texts.split('\t')
     for i in range(test_units):
-        test.append([text[1],yahoo_class[i*2*+1]]) # 要確認
+        test.append([text[1],yahoo_class[i*2+1]]) # 要確認
     y_test.append(int(int(text[0])/2))
 
 x_test = load_data(test)

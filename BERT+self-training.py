@@ -21,6 +21,7 @@ try:
 except:
     pass
 
+
 # パラメータ読み込み
 config = json.load(open('config.json'))
 BATCH_SIZE = config['BATCH_SIZE']
@@ -61,6 +62,8 @@ y_pred_split = np.split(y_pred,len(y_test_moto))
 y_pred_list = [np.argmax(x) for x in y_pred_split]
 rep2 = metrics.classification_report(y_test_moto,y_pred_list,digits=3)
 print(rep2)
+with open('result.txt','a') as f:
+        f.write(rep2)
 
 for i in range(N1):
     # テストデータをベクトルに変換

@@ -53,7 +53,7 @@ print(y_train.shape)
 
 # 学習
 inputs = Input(shape=(768,))
-output = Dense(units=1, activation='sigmoid')(inputs)
+output = Dense(units=1, activation='softmax')(inputs)
 model = Model(inputs, output)
 
 model.summary()

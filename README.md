@@ -1,7 +1,8 @@
 - ファイル名：
-    - baseline BERT+self-training 1.0
+    - baseline BERT+self-training 2.0
 - 説明
     - BERT+self-trainingの実装
+    - make_dataset.pyの間違いを修正
 - 共通
     - クラス情報は"this text is about クラス名 ."とする。
     - クラス名が2つある場合、"this text is about クラス名 . this text is about クラス名 ."とする。
@@ -22,6 +23,6 @@
     - "train_units":5,
     - "test_units":5,
     - "threshold":0.5,
-    - "choice_text_num":50,
+    - "choice_text_num":100,
     - "N1":5,
     - "N2":20
