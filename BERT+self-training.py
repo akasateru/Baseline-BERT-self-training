@@ -15,12 +15,13 @@ from keras.optimizers import Adam
 from keras.layers import Dense, Input
 from sklearn import metrics
 
+# 前の実行結果を削除
 try:
     os.remove('result.txt')
     os.remove('result_疑似ラベル抜きテストデータ.txt')
+    os.remove('result_疑似ラベル付けデータ.txt')
 except:
     pass
-
 
 # パラメータ読み込み
 config = json.load(open('config.json'))
@@ -29,7 +30,6 @@ EPOCHS = config['EPOCHS']
 LR = config['LR']
 SEQ_LEN = config['SEQ_LEN']
 test_units = config['test_units']
-threshold = config['threshold']
 choice_text_num = config['choice_text_num']
 N1 = config['N1']
 N2 = config['N2']
@@ -56,6 +56,7 @@ bert_model = Model(inputs, dense)
 custom_objects = {'TokenEmbedding': TokenEmbedding,'PositionEmbedding': PositionEmbedding,'MultiHeadAttention': MultiHeadAttention,'FeedForward': FeedForward,'gelu': gelu,'Extract': Extract,'LayerNormalization': LayerNormalization}
 model = load_model('BERT_pretraining.h5',custom_objects=custom_objects)
 
+# self trainingをする前のBERTモデルで予測
 bert_cls_test_moto = bert_model.predict(x_test_moto)
 y_pred = model.predict(bert_cls_test_moto)
 y_pred_split = np.split(y_pred,len(y_test_moto))
@@ -67,46 +68,48 @@ with open('result.txt','a') as f:
 
 for i in range(N1):
     # テストデータをベクトルに変換
-    # 入力：[indices, indices_mask]　出力：CLSの768次元
     bert_cls_test = bert_model.predict(x_test)
 
-    # テストデータで予測を行い信頼性の高い文書を選択
+    # テストデータで予測
     y_pred = model.predict(bert_cls_test)
     y_pred_split = np.split(y_pred,len(y_test))
-    y_pred_split = y_pred_split
 
+    # 信頼性の高い文書を選択
     confidence = [[np.argmax(y),max(y)] for y in y_pred_split]
     confidence_sort = sorted(confidence,reverse=True,key=lambda x:x[1])[:choice_text_num]
     conf_index = np.argsort(np.squeeze([max(y) for y in y_pred_split]))[::-1][:choice_text_num]
-
     x_pseudo = [[],[]]
     y_pseudo = []
+    y_pseudo_test = []
     for j in range(choice_text_num):
-        if confidence_sort[j][1] >= threshold:
-            x_pseudo[0].append(x_test[0][conf_index[j]*test_units+confidence_sort[j][0]])
-            x_pseudo[1].append(x_test[1][conf_index[j]*test_units+confidence_sort[j][0]])
-            y_pseudo.append(1)
-            rand_base = [i for i in range(test_units)]
-            rand_base.remove(confidence_sort[j][0])
-            rand = np.random.choice(rand_base)
-            x_pseudo[0].append(x_test[0][conf_index[j]*test_units+rand])
-            x_pseudo[1].append(x_test[1][conf_index[j]*test_units+rand])
-            y_pseudo.append(0)
-        else:
-            conf_index = conf_index[:j]
-            break
+        x_pseudo[0].append(x_test[0][conf_index[j]*test_units+confidence_sort[j][0]])
+        x_pseudo[1].append(x_test[1][conf_index[j]*test_units+confidence_sort[j][0]])
+        y_pseudo.append(1)
+        rand_base = [i for i in range(test_units)]
+        rand_base.remove(confidence_sort[j][0])
+        rand = np.random.choice(rand_base)
+        x_pseudo[0].append(x_test[0][conf_index[j]*test_units+rand])
+        x_pseudo[1].append(x_test[1][conf_index[j]*test_units+rand])
+        y_pseudo.append(0)
+        y_pseudo_test.append(y_test[conf_index[j]])
     x_pseudo = [np.array(x_pseudo[0]),np.array(x_pseudo[1])]
     y_pseudo = np.array(y_pseudo)
 
-    # 疑似ラベル付きデータをベクトル化
+    # 疑似ラベル付けの精度
+    pred = [conf[0] for conf in confidence_sort]
+    test = [y_test[c] for c in conf_index]
+    rep0 = metrics.classification_report(test,pred,digits=3)
+    with open('result_疑似ラベル付けデータ.txt','a') as f:
+        f.write(rep0)
+
+    # 疑似ラベル付きデータをベクトルに変換
     bert_cls_pseudo = bert_model.predict(x_pseudo)
 
-    # 疑似ラベル付きデータでBERTモデルを更新
+    # 疑似ラベル付きデータでBERTモデルを更新・保存
     model.fit(bert_cls_pseudo,y_pseudo,epochs=EPOCHS,batch_size=BATCH_SIZE)
-
     model.save('update_model/BERT_update_'+str(i)+'.h5')
 
-    # # テストデータから選択したデータを除外
+    # テストデータからモデルの更新に使用したデータを除外
     conf_index_sort = sorted(conf_index,reverse=True)
     x_test = [x_test[0].tolist(),x_test[1].tolist()]
     y_test = y_test.tolist()

@@ -53,30 +53,30 @@ with open('../data/yahootopic/classes.txt','r',encoding='utf-8') as f:
         texts = ' '.join(['this text is about '+r+' .' for r in row.split(' & ')])
         yahoo_class.append(texts)
 
-# yahoo topicのtrain_v0
-with open('../data/yahootopic/train_pu_half_v0.txt','r',encoding='utf-8') as f:
-    v0 = f.read().splitlines()
-train = []
-y_train = []
-train_rand = []
-for i,text in tqdm(enumerate(v0),total=len(v0)):
-    text = text.split('\t')
-    train.append([text[1],yahoo_class[int(text[0])]])
-    y_train.append(1)
+# # yahoo topicのtrain_v0
+# with open('../data/yahootopic/train_pu_half_v0.txt','r',encoding='utf-8') as f:
+#     v0 = f.read().splitlines()
+# train = []
+# y_train = []
+# train_rand = []
+# for i,text in tqdm(enumerate(v0),total=len(v0)):
+#     text = text.split('\t')
+#     train.append([text[1],yahoo_class[int(text[0])]])
+#     y_train.append(1)
 
-    rand_base = list(range(train_units))
-    rand_base.remove(int(int(text[0])/2))
-    rand = np.random.choice(rand_base)
-    train.append([text[1],yahoo_class[rand*2]])
-    y_train.append(0)
+#     rand_base = list(range(train_units))
+#     rand_base.remove(int(int(text[0])/2))
+#     rand = np.random.choice(rand_base)
+#     train.append([text[1],yahoo_class[rand*2]])
+#     y_train.append(0)
 
-x_train = load_data(train)
-y_train = np.array(y_train)
+# x_train = load_data(train)
+# y_train = np.array(y_train)
 
-with open('../dataset/train/x_train.npy','wb') as f:
-    pickle.dump(x_train, f, protocol=4)
-with open('../dataset/train/y_train.npy','wb') as f:
-    pickle.dump(y_train, f, protocol=4)
+# with open('../dataset/train/x_train.npy','wb') as f:
+#     pickle.dump(x_train, f, protocol=4)
+# with open('../dataset/train/y_train.npy','wb') as f:
+#     pickle.dump(y_train, f, protocol=4)
 
 # testdataのv1
 with open('../data/yahootopic/test.txt','r',encoding='utf-8') as f:
