@@ -6,7 +6,7 @@
     "LR":5e-5,
     "train_units":5,
     "test_units":5,
-    "choice_text_num":1000,
+    "choice_text_num":500,
     "N1":5,
     "N2":20
 }

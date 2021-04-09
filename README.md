@@ -1,8 +1,8 @@
 - ファイル名：
-    - baseline BERT+self-training 3.0
+    - baseline BERT+self-training 4.0
 - 説明
     - BERT+self-trainingの実装
-    - 疑似ラベル付けの精度を計算
+    - 疑似ラベル付けする文書数を500に変更
 - 共通
     - クラス情報は"this text is about クラス名 ."とする。
     - クラス名が2つある場合、"this text is about クラス名 . this text is about クラス名 ."とする。
@@ -22,6 +22,6 @@
     - "LR":5e-5,
     - "train_units":5,
     - "test_units":5,
-    - "choice_text_num":1000,
+    - "choice_text_num":500,
     - "N1":5,
     - "N2":20
